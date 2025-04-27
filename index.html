@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia de Árboles</title>
+    <style>
+        body {
+            background-color: orange;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-image: url('https://www.pexels.com/photo/green-leafed-plants-3137423/');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        header {
+            background: rgba(0, 128, 0, 0.6);
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: white;
+        }
+
+        p {
+            font-size: 1.2em;
+            color: green;
+            margin-top: 10px;
+        }
+
+        .question {
+            margin: 20px 0;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .option {
+            background-color: yellow;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+        }
+
+        .option:hover {
+            background-color: #FFEB3B;
+        }
+
+        .option.correct {
+            background-color: #4CAF50;
+        }
+
+        .option.incorrect {
+            background-color: #F44336;
+        }
+
+        .score {
+            font-size: 1.5em;
+            color: yellow;
+            margin-top: 20px;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 1.2em;
+            display: none;
+        }
+
+        .reward {
+            font-size: 1.5em;
+            color: yellow;
+            display: none;
+        }
+
+        #rain-sound {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Trivia de Árboles</h1>
+        <p>Cuidar un árbol hoy, es cuidar las próximas generaciones</p>
+    </header>
+
+    <div id="trivia-container">
+        <div class="question" id="question-text">¿Cómo se llama el árbol de la imagen?</div>
+        <img id="tree-image" src="" alt="Árbol" width="400px">
+        <div class="options">
+            <div class="option" id="option1" onclick="checkAnswer(0)"></div>
+            <div class="option" id="option2" onclick="checkAnswer(1)"></div>
+            <div class="option" id="option3" onclick="checkAnswer(2)"></div>
+            <div class="option" id="option4" onclick="checkAnswer(3)"></div>
+        </div>
+        <div class="error-message" id="error-message">Respuesta incorrecta, intenta nuevamente.</div>
+        <div class="reward" id="reward-message">¡Correcto! Has ganado 1 punto.</div>
+        <div class="score" id="score">Puntos: 0</div>
+    </div>
+
+    <audio id="rain-sound" loop>
+        <source src="https://www.soundjay.com/button/beep-07.wav" type="audio/wav">
+    </audio>
+
+    <script>
+        const triviaData = [
+            {
+                image: 'imagenes/roble.jpg',
+                correctAnswer: 'Roble',
+                options: ['Pino', 'Roble', 'Abeto', 'Olivo']
+            },
+            {
+                image: 'imagenes/alamo.jpg',
+                correctAnswer: 'Álamo',
+                options: ['Castaño', 'Álamo', 'Sauce', 'Manzano']
+            },
+            {
+                image: 'imagenes/abeto.jpg',
+                correctAnswer: 'Abeto',
+                options: ['Fresno', 'Abeto', 'Álamo', 'Roble']
+            },
+            {
+                image: 'imagenes/sauce.jpg',
+                correctAnswer: 'Sauce',
+                options: ['Sauce', 'Abeto', 'Olivo', 'Pino']
+            },
+            {
+                image: 'imagenes/olivo.jpg',
+                correctAnswer: 'Olivo',
+                options: ['Castaño', 'Álamo', 'Olivo', 'Sauce']
+            },
+            // Puedes agregar más imágenes de árboles aquí
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const currentQuestion = triviaData[currentQuestionIndex];
+            document.getElementById('tree-image').src = currentQuestion.image;
+            document.getElementById('question-text').textContent = '¿Cómo se llama el árbol de la imagen?';
+            const options = currentQuestion.options;
+            options.forEach((option, index) => {
+                document.getElementById('option' + (index + 1)).textContent = option;
+                document.getElementById('option' + (index + 1)).classList.remove('correct', 'incorrect');
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            const currentQuestion = triviaData[currentQuestionIndex];
+            const selectedOption = document.getElementById('option' + (selectedIndex + 1)).textContent;
+
+            if (selectedOption === currentQuestion.correctAnswer) {
+                score++;
+                document.getElementById('reward-message').style.display = 'block';
+                document.getElementById('error-message').style.display = 'none';
+                document.getElementById('score').textContent = `Puntos: ${score}`;
+                document.getElementById('rain-sound').play();
+                document.getElementById('option' + (selectedIndex + 1)).classList.add('correct');
+            } else {
+                score = Math.max(0, score - 1); // No dejar que el puntaje sea negativo
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('reward-message').style.display = 'none';
+                document.getElementById('score').textContent = `Puntos: ${score}`;
+                document.getElementById('option' + (selectedIndex + 1)).classList.add('incorrect');
+            }
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < triviaData.length) {
+                setTimeout(() => {
+                    loadQuestion();
+                    document.getElementById('reward-message').style.display = 'none';
+                    document.getElementById('error-message').style.display = 'none';
+                }, 2000);
+            } else {
+                setTimeout(() => {
+                    alert('¡Has terminado la trivia! Puntuación final: ' + score);
+                }, 2000);
+            }
+        }
+
+        loadQuestion();
+    </script>
+
+</body>
+</html>
